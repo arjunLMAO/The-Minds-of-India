@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Minds of India — Where Young Minds Shape Tomorrow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;0,7..72,700;1,7..72,400;1,7..72,600&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    --ink:#15151f;
+    --ink-soft:#1e1e2c;
+    --ink-line:#33334a;
+    --paper:#ece3cf;
+    --paper-dim:#ded3b8;
+    --paper-text:#1c1a14;
+    --off-white:#f2ede0;
+    --marigold:#e3a13a;
+    --vermillion:#c9451f;
+    --muted:#918c78;
+    --muted-dark:#a09b8a;
+
+    --display: 'Anton', sans-serif;
+    --serif: 'Literata', Georgia, serif;
+    --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--off-white);
+    font-family:var(--serif);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  img{max-width:100%;display:block;}
+  button{font-family:inherit;}
+
+  :focus-visible{
+    outline:3px solid var(--marigold);
+    outline-offset:3px;
+  }
+
+  /* ---------- torn paper divider ---------- */
+  .torn{
+    height:14px;
+    width:100%;
+    background:
+      linear-gradient(135deg, var(--paper) 25%, transparent 25%) 0 0/14px 14px repeat-x,
+      linear-gradient(225deg, var(--paper) 25%, transparent 25%) 0 0/14px 14px repeat-x;
+    background-color:var(--ink);
+  }
+  .torn.flip{
+    transform:rotate(180deg);
+  }
+
+  /* ---------- masthead ---------- */
+  header.masthead{
+    background:var(--paper);
+    color:var(--paper-text);
+    padding:clamp(28px,6vw,56px) 20px clamp(20px,4vw,32px);
+    text-align:center;
+  }
+  .masthead-inner{max-width:920px;margin:0 auto;}
+  .eyebrow-tag{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    background:var(--vermillion);
+    color:var(--off-white);
+    padding:4px 10px;
+    transform:rotate(-2deg);
+    margin-bottom:18px;
+  }
+  h1.masthead-title{
+    font-family:var(--display);
+    font-weight:400;
+    text-transform:uppercase;
+    font-size:clamp(2.6rem,9vw,5.4rem);
+    line-height:.92;
+    letter-spacing:.01em;
+    margin:0 0 14px;
+  }
+  p.masthead-motto{
+    font-family:var(--mono);
+    font-style:italic;
+    font-size:clamp(12px,2.2vw,15px);
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#4a4638;
+    margin:0;
+  }
+
+  /* ---------- nav ---------- */
+  nav.tabs{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:var(--ink);
+    border-bottom:1px solid var(--ink-line);
+    display:flex;
+    justify-content:center;
+    gap:0;
+  }
+  nav.tabs button{
+    background:none;
+    border:none;
+    color:var(--muted-dark);
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    padding:16px 22px;
+    cursor:pointer;
+    border-bottom:3px solid transparent;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  nav.tabs button:hover{color:var(--off-white);}
+  nav.tabs button.active{
+    color:var(--off-white);
+    border-bottom-color:var(--vermillion);
+  }
+
+  main{max-width:1100px;margin:0 auto;padding:0 20px;}
+  .view{display:none;animation:rise .5s ease both;}
+  .view.active{display:block;}
+  @keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  .section-head{padding:48px 0 28px;text-align:center;}
+  .section-head .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--marigold);
+    display:block;
+    margin-bottom:10px;
+  }
+  .section-head h2{
+    font-family:var(--display);
+    font-weight:400;
+    text-transform:uppercase;
+    font-size:clamp(2rem,5vw,3.2rem);
+    margin:0 0 10px;
+  }
+  .section-head p{
+    font-family:var(--serif);
+    color:var(--muted-dark);
+    max-width:560px;
+    margin:0 auto;
+    font-size:15.5px;
+  }
+
+  /* ---------- issues grid ---------- */
+  #issues-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:26px;
+    padding-bottom:20px;
+  }
+  .issue-card{
+    position:relative;
+    background:var(--paper);
+    color:var(--paper-text);
+    padding:0 0 18px;
+    transform:rotate(var(--tilt,0deg));
+    transition:transform .2s ease, box-shadow .2s ease;
+    box-shadow:0 6px 0 rgba(0,0,0,.28);
+  }
+  .issue-card:hover{
+    transform:rotate(0deg) translateY(-4px);
+    box-shadow:0 12px 0 rgba(0,0,0,.3);
+  }
+  .issue-card:nth-child(3n+1){--tilt:-1.4deg;}
+  .issue-card:nth-child(3n+2){--tilt:1deg;}
+  .issue-card:nth-child(3n+3){--tilt:-0.6deg;}
+
+  .issue-tab{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--off-white);
+    padding:5px 10px;
+    display:inline-block;
+    margin:-1px 0 0 -1px;
+  }
+  .issue-card.m .issue-tab{background:var(--marigold);}
+  .issue-card.v .issue-tab{background:var(--vermillion);}
+
+  .issue-cover{
+    width:100%;
+    aspect-ratio:3/4;
+    object-fit:cover;
+    background:var(--paper-dim);
+    border-bottom:1px solid rgba(0,0,0,.15);
+  }
+  .issue-cover.fallback{
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--display);
+    font-size:3rem;
+    color:rgba(0,0,0,.18);
+  }
+  .issue-body{padding:16px 18px 0;}
+  .issue-body h3{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:1.15rem;
+    margin:0 0 4px;
+    line-height:1.25;
+  }
+  .issue-meta{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#66604e;
+    margin-bottom:10px;
+  }
+  .issue-desc{font-size:14px;color:#3a362a;margin:0 0 14px;}
+  .issue-link{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    text-decoration:none;
+    border-bottom:2px solid var(--vermillion);
+    padding-bottom:2px;
+  }
+  .issue-link:hover{color:var(--vermillion);}
+  .issue-remove{
+    position:absolute;top:8px;right:8px;
+    background:var(--ink);
+    color:var(--off-white);
+    border:none;
+    width:26px;height:26px;
+    font-family:var(--mono);
+    font-size:14px;
+    cursor:pointer;
+    line-height:1;
+  }
+  .issue-remove:hover{background:var(--vermillion);}
+
+  .empty-state{
+    text-align:center;
+    padding:50px 20px;
+    border:1.5px dashed var(--ink-line);
+    font-family:var(--mono);
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    font-size:13px;
+    color:var(--muted);
+  }
+
+  /* ---------- editor / admin ---------- */
+  .editor-strip{
+    text-align:center;
+    padding:34px 0 60px;
+  }
+  .editor-strip button.link{
+    background:none;border:none;cursor:pointer;
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    text-decoration:underline;
+    text-underline-offset:4px;
+  }
+  .editor-strip button.link:hover{color:var(--off-white);}
+
+  .editor-panel{
+    background:var(--ink-soft);
+    border:1px solid var(--ink-line);
+    padding:24px;
+    max-width:520px;
+    margin:0 auto 50px;
+  }
+  .editor-panel h4{
+    font-family:var(--mono);
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-size:13px;
+    color:var(--marigold);
+    margin:0 0 16px;
+  }
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted-dark);
+    margin-bottom:6px;
+  }
+  .field input, .field textarea{
+    width:100%;
+    background:var(--ink);
+    border:1px solid var(--ink-line);
+    color:var(--off-white);
+    padding:10px 12px;
+    font-family:var(--serif);
+    font-size:14px;
+  }
+  .field textarea{resize:vertical;min-height:70px;}
+  .field-error{
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--vermillion);
+    margin-top:10px;
+  }
+  .btn{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    background:var(--vermillion);
+    color:var(--off-white);
+    border:none;
+    padding:12px 20px;
+    cursor:pointer;
+  }
+  .btn:hover{background:var(--marigold);color:var(--paper-text);}
+  .btn.ghost{
+    background:none;
+    border:1px solid var(--ink-line);
+    color:var(--muted-dark);
+  }
+  .btn.ghost:hover{color:var(--off-white);border-color:var(--off-white);}
+  .row-actions{display:flex;gap:10px;align-items:center;margin-top:4px;}
+  .signed-in-tag{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--marigold);
+    margin-bottom:16px;
+  }
+
+  /* ---------- submissions ---------- */
+  #view-submissions .section-head{padding-bottom:10px;}
+  .manifesto{
+    background:var(--paper);
+    color:var(--paper-text);
+    max-width:680px;
+    margin:20px auto 30px;
+    padding:clamp(26px,5vw,42px);
+    transform:rotate(-0.6deg);
+    box-shadow:0 8px 0 rgba(0,0,0,.28);
+  }
+  .manifesto p{
+    font-family:var(--serif);
+    font-size:16px;
+    line-height:1.75;
+    margin:0 0 20px;
+  }
+  .manifesto p:last-of-type{margin-bottom:0;}
+  .manifesto .signoff{
+    margin-top:24px;
+    font-family:var(--mono);
+    font-size:13px;
+    color:#4a4638;
+  }
+
+  .stamp{
+    width:150px;height:150px;
+    border:3px solid var(--vermillion);
+    border-radius:50%;
+    margin:10px auto 36px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color:var(--vermillion);
+    transform:rotate(-9deg);
+    font-family:var(--mono);
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    font-size:13px;
+    line-height:1.5;
+    position:relative;
+  }
+  .stamp::before{
+    content:"";
+    position:absolute;
+    inset:8px;
+    border:1px dashed var(--vermillion);
+    border-radius:50%;
+  }
+
+  .cta-wrap{text-align:center;padding-bottom:70px;}
+  .cta-email{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:clamp(14px,3vw,17px);
+    letter-spacing:.03em;
+    text-decoration:none;
+    background:var(--ink-soft);
+    border:1px solid var(--ink-line);
+    color:var(--off-white);
+    padding:16px 24px;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .cta-email:hover{border-color:var(--marigold);color:var(--marigold);}
+  .cta-email span{color:var(--muted);display:block;font-size:11px;letter-spacing:.14em;margin-bottom:6px;}
+
+  footer{
+    text-align:center;
+    padding:26px 20px 40px;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .view{animation:none;}
+    .issue-card{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <span class="eyebrow-tag">A Monthly Newsletter</span>
+    <h1 class="masthead-title">The Minds of India</h1>
+    <p class="masthead-motto">Where Young Minds Shape Tomorrow</p>
+  </div>
+</header>
+<div class="torn"></div>
+
+<nav class="tabs">
+  <button type="button" data-view="issues" class="active">Issues</button>
+  <button type="button" data-view="submissions">Submissions</button>
+</nav>
+
+<main>
+
+  <!-- ISSUES VIEW -->
+  <section id="view-issues" class="view active">
+    <div class="section-head">
+      <span class="eyebrow">The Archive</span>
+      <h2>Issues</h2>
+      <p>Every issue, gathered here — the unfiltered work of young writers, photographers, and creators.</p>
+    </div>
+
+    <div id="issues-loading" class="empty-state">Loading issues…</div>
+    <div id="issues-grid" style="display:none;"></div>
+    <div id="issues-empty" class="empty-state" style="display:none;">No issues yet — check back soon.</div>
+
+    <div class="editor-strip">
+      <button type="button" class="link" id="editor-toggle">Editor sign-in</button>
+    </div>
+
+    <div id="editor-panel" style="display:none;"></div>
+  </section>
+
+  <!-- SUBMISSIONS VIEW -->
+  <section id="view-submissions" class="view">
+    <div class="section-head">
+      <span class="eyebrow">Call for Voices</span>
+      <h2>Submissions</h2>
+    </div>
+
+    <div class="manifesto">
+      <p>In an age where the media we consume is plagued by curated narratives, authentic voices, particularly the youth's voices, can struggle to find space and are often shut down. We believe that the media should be a reflection of the youth's raw energy and unadulterated truth. We bring you a platform where ideas are expressed articulately, honestly, and deeply.</p>
+      <p>With this vision in mind, we at The Minds of India invite young writers, photographers, and creators to contribute to our monthly newsletter.</p>
+      <p>If you wish to have any of your work published, please send your submission to themindsofindia1@gmail.com.</p>
+      <div class="signoff">Regards,<br>The Minds of India Team</div>
+    </div>
+
+    <div class="stamp">Submit<br>Your Work</div>
+
+    <div class="cta-wrap">
+      <a class="cta-email" href="mailto:themindsofindia1@gmail.com">
+        <span>Send your work to</span>
+        themindsofindia1@gmail.com
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer>The Minds of India — Issue submissions open year-round</footer>
+
+<script>
+(function(){
+  const SUPABASE_URL = 'https://nglrqjyvkskehaakxljh.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nbHJxanl2a3NrZWhhYWt4bGpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxOTQ1OTgsImV4cCI6MjA5OTc3MDU5OH0.UxKeXAOFHZKKdpPh_oAKfY8Q4v7pG3eGg93PdsIHBhI';
+  const BUCKET = 'issue-files';
+
+  const notConfigured = SUPABASE_URL.startsWith('YOUR_') || SUPABASE_ANON_KEY.startsWith('YOUR_');
+  let sb = null;
+  if(!notConfigured){
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+
+  let issues = [];
+  let isAdmin = false;
+
+  // ---------- view switching ----------
+  const tabs = document.querySelectorAll('nav.tabs button');
+  const views = document.querySelectorAll('.view');
+  tabs.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      tabs.forEach(b=>b.classList.remove('active'));
+      views.forEach(v=>v.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('view-' + btn.dataset.view).classList.add('active');
+    });
+  });
+
+  // ---------- setup banner ----------
+  function showSetupBanner(){
+    const loading = document.getElementById('issues-loading');
+    loading.innerHTML = 'This site isn\'t connected to a backend yet — open index.html and paste your Supabase URL and anon key at the top of the script. See setup-guide.md for step-by-step instructions.';
+    loading.style.display = 'block';
+  }
+
+  // ---------- data ----------
+  async function loadIssues(){
+    if(notConfigured){ showSetupBanner(); return; }
+    const loading = document.getElementById('issues-loading');
+    loading.textContent = 'Loading issues…';
+    loading.style.display = 'block';
+    const { data, error } = await sb.from('issues').select('*').order('created_at', { ascending:false });
+    if(error){
+      loading.textContent = 'Couldn\'t load issues right now. Refresh to try again.';
+      console.error(error);
+      return;
+    }
+    issues = data || [];
+    renderIssues();
+  }
+
+  function publicUrlFor(path){
+    if(!path) return null;
+    const { data } = sb.storage.from(BUCKET).getPublicUrl(path);
+    return data ? data.publicUrl : null;
+  }
+
+  // ---------- render issues grid ----------
+  function renderIssues(){
+    const loading = document.getElementById('issues-loading');
+    const grid = document.getElementById('issues-grid');
+    const empty = document.getElementById('issues-empty');
+    loading.style.display = 'none';
+
+    if(!issues.length){
+      grid.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    grid.style.display = 'grid';
+
+    grid.innerHTML = issues.map((iss, i)=>{
+      const tabClass = i % 2 === 0 ? 'm' : 'v';
+      const coverUrl = publicUrlFor(iss.cover_path);
+      const fileUrl = publicUrlFor(iss.file_path);
+      const cover = coverUrl
+        ? `<img class="issue-cover" src="${escapeAttr(coverUrl)}" alt="Cover of ${escapeAttr(iss.title)}">`
+        : `<div class="issue-cover fallback">${escapeHtml(iss.issue_number || '')}</div>`;
+      const link = fileUrl
+        ? `<a class="issue-link" href="${escapeAttr(fileUrl)}" target="_blank" rel="noopener">Read issue →</a>`
+        : '';
+      const removeBtn = isAdmin
+        ? `<button class="issue-remove" data-id="${iss.id}" data-cover="${escapeAttr(iss.cover_path||'')}" data-file="${escapeAttr(iss.file_path||'')}" aria-label="Remove issue">✕</button>`
+        : '';
+      return `
+        <article class="issue-card ${tabClass}">
+          ${removeBtn}
+          <span class="issue-tab">${escapeHtml(iss.issue_number ? 'Issue ' + iss.issue_number : 'Issue')}</span>
+          ${cover}
+          <div class="issue-body">
+            <h3>${escapeHtml(iss.title)}</h3>
+            <div class="issue-meta">${escapeHtml(iss.issue_date || '')}</div>
+            <p class="issue-desc">${escapeHtml(iss.description || '')}</p>
+            ${link}
+          </div>
+        </article>`;
+    }).join('');
+
+    grid.querySelectorAll('.issue-remove').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        if(!confirm('Remove this issue from the archive?')) return;
+        const id = btn.dataset.id;
+        const paths = [btn.dataset.cover, btn.dataset.file].filter(Boolean);
+        if(paths.length){
+          await sb.storage.from(BUCKET).remove(paths);
+        }
+        const { error } = await sb.from('issues').delete().eq('id', id);
+        if(error){ alert('Could not remove that issue. Please try again.'); console.error(error); return; }
+        await loadIssues();
+      });
+    });
+  }
+
+  function escapeHtml(str){
+    return String(str||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+  function escapeAttr(str){ return escapeHtml(str); }
+  function sanitizeFilename(name){
+    return String(name||'file').replace(/[^a-zA-Z0-9.\-_]/g, '_');
+  }
+
+  // ---------- editor panel ----------
+  const editorToggle = document.getElementById('editor-toggle');
+  const editorPanel = document.getElementById('editor-panel');
+  let panelOpen = false;
+
+  editorToggle.addEventListener('click', ()=>{
+    panelOpen = !panelOpen;
+    editorPanel.style.display = panelOpen ? 'block' : 'none';
+    editorToggle.textContent = panelOpen ? 'Close editor panel' : 'Editor sign-in';
+    renderEditorPanel();
+  });
+
+  function renderEditorPanel(){
+    if(!panelOpen){ editorPanel.innerHTML=''; return; }
+    if(notConfigured){
+      editorPanel.innerHTML = `<div class="editor-panel"><h4>Not connected yet</h4><p style="font-size:14px;color:var(--muted-dark);">Follow setup-guide.md to connect this page to Supabase before signing in.</p></div>`;
+      return;
+    }
+
+    if(!isAdmin){
+      editorPanel.innerHTML = `
+        <div class="editor-panel">
+          <h4>Editor sign-in</h4>
+          <div class="field">
+            <label for="editor-email">Email</label>
+            <input type="email" id="editor-email" placeholder="you@example.com" autocomplete="username">
+          </div>
+          <div class="field">
+            <label for="editor-password">Password</label>
+            <input type="password" id="editor-password" autocomplete="current-password">
+          </div>
+          <div id="editor-error"></div>
+          <button class="btn" id="editor-submit">Sign in</button>
+        </div>`;
+      document.getElementById('editor-submit').addEventListener('click', async ()=>{
+        const email = document.getElementById('editor-email').value.trim();
+        const password = document.getElementById('editor-password').value;
+        const btn = document.getElementById('editor-submit');
+        btn.textContent = 'Signing in…';
+        btn.disabled = true;
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        btn.textContent = 'Sign in';
+        btn.disabled = false;
+        if(error){
+          document.getElementById('editor-error').innerHTML =
+            `<div class="field-error">${escapeHtml(error.message)}</div>`;
+          return;
+        }
+        isAdmin = true;
+        renderEditorPanel();
+        renderIssues();
+      });
+      return;
+    }
+
+    editorPanel.innerHTML = `
+      <div class="editor-panel">
+        <div class="signed-in-tag">Signed in</div>
+        <h4>Publish a new issue</h4>
+        <div class="field">
+          <label for="f-title">Title</label>
+          <input type="text" id="f-title" placeholder="e.g. Issue 4 — Monsoon Voices">
+        </div>
+        <div class="field">
+          <label for="f-number">Issue number</label>
+          <input type="text" id="f-number" placeholder="e.g. 4">
+        </div>
+        <div class="field">
+          <label for="f-date">Date</label>
+          <input type="text" id="f-date" placeholder="e.g. July 2026">
+        </div>
+        <div class="field">
+          <label for="f-desc">Description</label>
+          <textarea id="f-desc" placeholder="A short line about what's inside this issue"></textarea>
+        </div>
+        <div class="field">
+          <label for="f-cover">Cover image (optional)</label>
+          <input type="file" id="f-cover" accept="image/*">
+        </div>
+        <div class="field">
+          <label for="f-file">Issue file (PDF, etc.)</label>
+          <input type="file" id="f-file">
+        </div>
+        <div id="publish-error"></div>
+        <div class="row-actions">
+          <button class="btn" id="publish-submit">Publish issue</button>
+          <button class="btn ghost" id="sign-out">Sign out</button>
+        </div>
+      </div>`;
+
+    document.getElementById('sign-out').addEventListener('click', async ()=>{
+      await sb.auth.signOut();
+      isAdmin = false;
+      renderEditorPanel();
+      renderIssues();
+    });
+
+    document.getElementById('publish-submit').addEventListener('click', async ()=>{
+      const title = document.getElementById('f-title').value.trim();
+      const issue_number = document.getElementById('f-number').value.trim();
+      const issue_date = document.getElementById('f-date').value.trim();
+      const description = document.getElementById('f-desc').value.trim();
+      const coverFile = document.getElementById('f-cover').files[0];
+      const issueFile = document.getElementById('f-file').files[0];
+      const errorBox = document.getElementById('publish-error');
+      errorBox.innerHTML = '';
+
+      if(!title){
+        errorBox.innerHTML = `<div class="field-error">Give the issue a title before publishing.</div>`;
+        return;
+      }
+
+      const submitBtn = document.getElementById('publish-submit');
+      submitBtn.textContent = 'Uploading…';
+      submitBtn.disabled = true;
+
+      try{
+        let cover_path = null, file_path = null;
+
+        if(coverFile){
+          cover_path = `covers/${Date.now()}-${sanitizeFilename(coverFile.name)}`;
+          const { error: upErr } = await sb.storage.from(BUCKET).upload(cover_path, coverFile);
+          if(upErr) throw upErr;
+        }
+        if(issueFile){
+          file_path = `files/${Date.now()}-${sanitizeFilename(issueFile.name)}`;
+          const { error: upErr2 } = await sb.storage.from(BUCKET).upload(file_path, issueFile);
+          if(upErr2) throw upErr2;
+        }
+
+        const { error: insErr } = await sb.from('issues').insert({
+          title, issue_number, issue_date, description, cover_path, file_path
+        });
+        if(insErr) throw insErr;
+
+        await loadIssues();
+        renderEditorPanel();
+      }catch(err){
+        console.error(err);
+        errorBox.innerHTML = `<div class="field-error">Publishing failed: ${escapeHtml(err.message||'unknown error')}</div>`;
+        submitBtn.textContent = 'Publish issue';
+        submitBtn.disabled = false;
+      }
+    });
+  }
+
+  // ---------- boot ----------
+  async function init(){
+    if(notConfigured){ showSetupBanner(); return; }
+    const { data: { session } } = await sb.auth.getSession();
+    isAdmin = !!session;
+    sb.auth.onAuthStateChange((_event, sess)=>{
+      isAdmin = !!sess;
+      renderEditorPanel();
+      renderIssues();
+    });
+    await loadIssues();
+  }
+
+  init();
+})();
+</script>
+
+</body>
+</html>
